@@ -1,0 +1,67 @@
+import os
+import requests
+from dotenv import load_dotenv
+
+load_dotenv()
+api_ = os.getenv('api_key')
+
+
+def get_weather(latitude, longitude):
+    url = f"https://api.openweathermap.org/data/2.5/weather?lat={latitude}&lon={longitude}&units=metric&appid={api_}"
+    
+    response = requests.get(url)
+    
+    if response.status_code == 200:
+        data = response.json()
+        temp = data['main']['temp']
+        return temp
+    else:
+        print(f"Failed to retrieve data: {response.status_code}")
+        return None    
+
+
+
+def get_coordinates(city_name):
+    url = (f"https://api.openweathermap.org/data/2.5/weather?q={city_name}&units=metric&appid={api_}")
+        
+    response = requests.get(url)
+
+    if response.status_code == 200:
+        data = response.json()
+        if data:
+            long = data['coord']['lon']
+            lat = data['coord']['lat']
+            country = data['sys']['country']
+            return long, lat, country
+        else:
+            print("No data found for that city.")
+            return None
+    else:
+        print(f"Failed to retrieve data: {response.status_code}")
+        return None
+
+def display_weather(city_name, latitude, longitude, country, temp):
+    print("**************")  
+    print(f"City: {city_name}, {country}")    
+    print(f"The coordinates of {city_name} is: ({latitude}, {longitude}.) ")    
+    print(f"Temperature is: {temp}°C")        
+    print("**************")      
+    pass
+
+def main():
+    city_name = input("Enter a city: ").capitalize()
+    coordinates = get_coordinates(city_name)
+
+    if coordinates:
+        latitude, longitude, country = coordinates
+        temp = get_weather(latitude, longitude)
+
+        if temp is not None:
+            display_weather(city_name, latitude, longitude, country, temp)
+    
+ 
+if __name__ == '__main__':
+    main()
+
+
+
